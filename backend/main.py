@@ -53,6 +53,17 @@ def login(request: schemas.LoginRequest, db: DBSession = Depends(get_db)):
     if not user or not verify_password(request.password, user.password_hash): raise HTTPException(status_code=401, detail="Invalid email or password.")
     return schemas.AuthResponse(token=create_token(user.id), name=user.name)
 
+@app.get("/api/profile", response_model=schemas.ProfileResponse)
+def get_profile(db: DBSession = Depends(get_db), user: models.User = Depends(current_user)):
+    return interview_service.profile(db, user)
+
+@app.put("/api/profile", response_model=schemas.ProfileResponse)
+def update_profile(request: schemas.UpdateProfileRequest, db: DBSession = Depends(get_db), user: models.User = Depends(current_user)):
+    user.name = request.name.strip()
+    db.commit()
+    db.refresh(user)
+    return interview_service.profile(db, user)
+
 @app.post("/api/resume/extract")
 async def extract_resume(file: UploadFile = File(...), user: models.User = Depends(current_user)):
     if file.content_type not in {"application/pdf", "application/x-pdf"}: raise HTTPException(status_code=400, detail="Upload a PDF resume.")

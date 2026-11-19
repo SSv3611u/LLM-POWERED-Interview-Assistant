@@ -35,6 +35,8 @@ export const submitAnswer = (sessionId, questionId, answerText) => request(`/api
 export const getSummary = (id) => request(`/api/sessions/${id}/summary`);
 export const getHistory = () => request("/api/sessions");
 export const getEvaluationDashboard = () => request("/api/evaluations/dashboard");
+export const getProfile = () => request("/api/profile");
+export const updateProfile = (name) => request("/api/profile", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
 export const saveHumanReview = (data) => request("/api/evaluations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
 export async function extractResume(file) {
   const form = new FormData(); form.append("file", file);

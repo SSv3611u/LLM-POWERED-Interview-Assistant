@@ -162,3 +162,16 @@ def evaluation_dashboard(db: DBSession, user_id: int) -> schemas.EvaluationDashb
     ai = [record.answer.score or 0 for record in records]; human = [record.human_score for record in records]
     errors = [abs(a - h) for a, h in zip(ai, human)]
     return schemas.EvaluationDashboard(reviewedAnswers=len(records), meanAbsoluteError=round(sum(errors)/len(errors), 2), averageAiScore=round(sum(ai)/len(ai), 2), averageHumanScore=round(sum(human)/len(human), 2), agreementRate=round(sum(error <= 1 for error in errors) * 100 / len(errors), 1))
+
+
+def profile(db: DBSession, user: models.User) -> schemas.ProfileResponse:
+    sessions = db.query(models.InterviewSession).filter_by(user_id=user.id).all()
+    answers = [question.answer.score or 0 for session in sessions for question in session.questions if question.answer]
+    completed = sum(1 for session in sessions if session.questions and len([q for q in session.questions if q.answer]) >= session.number_of_questions)
+    return schemas.ProfileResponse(
+        name=user.name,
+        email=user.email,
+        memberSince=user.created_at.date().isoformat(),
+        interviewsCompleted=completed,
+        averageScore=round(sum(answers) / len(answers), 1) if answers else 0.0,
+    )

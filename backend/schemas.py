@@ -14,6 +14,16 @@ class AuthResponse(BaseModel):
     token: str
     name: str
 
+class UpdateProfileRequest(BaseModel):
+    name: str = Field(..., min_length=2, max_length=100)
+
+class ProfileResponse(BaseModel):
+    name: str
+    email: str
+    memberSince: str
+    interviewsCompleted: int
+    averageScore: float
+
 class CreateSessionRequest(BaseModel):
     targetRole: str = Field(..., min_length=2, max_length=100)
     techStack: str = Field(..., min_length=2)
