@@ -4,9 +4,24 @@ const authHeaders = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+function errorMessage(body, status) {
+  const detail = body?.error ?? body?.detail;
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) {
+    return detail
+      .map((item) => item?.msg || item?.message || "Invalid request")
+      .filter(Boolean)
+      .join(". ");
+  }
+  if (detail && typeof detail === "object") {
+    return detail.message || detail.error || "The request could not be completed.";
+  }
+  return `Request failed (${status})`;
+}
+
 async function handle(res) {
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(body.error || body.detail || `Request failed (${res.status})`);
+  if (!res.ok) throw new Error(errorMessage(body, res.status));
   return body;
 }
 async function request(path, options = {}) {

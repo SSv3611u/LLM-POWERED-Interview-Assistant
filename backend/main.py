@@ -30,6 +30,9 @@ async def ai_error(_, exc): return JSONResponse(status_code=502, content={"succe
 async def lookup_error(_, exc): return JSONResponse(status_code=404, content={"success": False, "error": str(exc)})
 @app.exception_handler(ValueError)
 async def value_error(_, exc): return JSONResponse(status_code=400, content={"success": False, "error": str(exc)})
+@app.exception_handler(Exception)
+async def unexpected_error(_, exc):
+    return JSONResponse(status_code=500, content={"success": False, "error": "The interview service could not process that response. Please try again."})
 
 @app.get("/")
 def home(): return {"message": "Interview Prep Assistant API", "status": "running", "version": "3.0.0"}
